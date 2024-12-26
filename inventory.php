@@ -18,13 +18,11 @@ if (isset($_POST['ins'])) {
 
 	move_uploaded_file($temp_image, "product_images/$image");
 
-	$query = "insert into `products`(pname, category, description, price, qtyavail, img, brand) values ('$pname', '$category', '$description', '$price', '$quantity', '$image', '$brand')";
-
-	$result = mysqli_query($con, $query);
-
-	if ($result) {
-		echo "<script> alert('Successfully entered product') </script>";
-	}
+    $query = "INSERT INTO `products` (pname, category, description, price, qtyavail, img, brand) VALUES ('$pname', '$category', '$description', '$price', '$quantity', '$image', '$brand')";
+    $result = mysqli_query($con, $query);
+    if (!$result) {
+        echo "Error: " . mysqli_error($con);
+    }
 }
 
 if (isset($_GET['pid'])) {
