@@ -3,26 +3,30 @@ session_start()
 include("include/connect.php");
 
 if (isset($_POST['ins'])) {
-	$pname = $_POST['name'];
-	$category = $_POST['category'];
-	$description = $_POST['description'];
-	$quantity = $_POST['quantity'];
-	$price = $_POST['price'];
-	$brand = $_POST['brand'];
-	$image = $_FILES['photo']['name'];
-	$temp_image = $_FILES['photo']['tmp_name'];
+    $pname = $_POST['name'];
+    $category = $_POST['category'];
+    $description = $_POST['description'];
+    $quantity = $_POST['quantity'];
+    $price = $_POST['price'];
+    $brand = $_POST['brand'];
+    $image = $_FILES['photo']['name'];
+    $temp_image = $_FILES['photo']['tmp_name'];
 
-	if ($category == "all") {
-		echo "<script> alert('select category'); setTimeout(function(){ window.location.href = 'inventory.php'; }, 100); </script>";
-		exit();
-	}
+    // Validasi input
+    if (empty($pname) || empty($category) || empty($description) || empty($quantity) || empty($price) || empty($brand) || empty($image)) {
+        echo "All fields are required.";
+        exit();
+    }
 
-	move_uploaded_file($temp_image, "product_images/$image");
+    move_uploaded_file($temp_image, "product_images/$image");
 
     $query = "INSERT INTO `products` (pname, category, description, price, qtyavail, img, brand) VALUES ('$pname', '$category', '$description', '$price', '$quantity', '$image', '$brand')";
+    $result ```php
     $result = mysqli_query($con, $query);
     if (!$result) {
         echo "Error: " . mysqli_error($con);
+    } else {
+        echo "Product added successfully.";
     }
 }
 
