@@ -1,11 +1,8 @@
 <?php
 // Menghubungkan ke database MySQL di Azure tanpa SSL
-$con = mysqli_connect("scc-server.mysql.database.azure.com", "nsruuvnlvc", "Putra.123.", "computerscc", 3306);
-
-// Mengecek apakah koneksi berhasil
+$con = mysqli_connect('scc-server.mysql.database.azure.com', 'nsruuvnlvc', 'Putra.123.', 'computerscc');
 if (!$con) {
-    echo "Koneksi gagal: " . mysqli_connect_error();
-    die();
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 // Jika berhasil, lanjutkan ke operasi lainnya
