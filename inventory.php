@@ -1,7 +1,7 @@
 <?php
 include("include/connect.php");
 
-if (isset($_POST['ins'])) {
+if (isset($_POST['products'])) {
 	$pname = $_POST['name'];
 	$category = $_POST['category'];
 	$description = $_POST['description'];
@@ -36,7 +36,7 @@ if (isset($_GET['pid'])) {
 
 }
 
-if (isset($_POST['submit'])) {
+if (isset($_POST['submitt'])) {
 	$pname = $_POST['name1'];
 	$category = $_POST['category1'];
 	$description = $_POST['description1'];
@@ -447,7 +447,7 @@ if (isset($_GET['odd'])) {
 									<input type='file' name='photo1' id='fileInput'>
 									<label for='brand'>Brand:</label>
 									<input type='text' id='brand' name='brand1' value='$brand' required>
-									<button name='submit' type='submit' class='insert-btn'>save</button>
+									<button name='submitt' type='submitt' class='insert-btn'>save</button>
 								</form >";
 					}
 					if (isset($_POST['search1'])) {
