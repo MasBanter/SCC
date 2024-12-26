@@ -100,11 +100,10 @@ $conn->close(); // Close the database connection
             <h2>Beli kombo, dapatkan satu aksesori gratis</h2>
             <span>Klasik terbaik sedang dijual di SCC</span>
             <a href="shop.php">
-                <button class="white"> Learn More</button>
+                <button class="white">Learn More</button>
             </a>
         </div>
-        <div class="banner-box banner-box2">
-            <h4>Coming This Week</h4>
+        <div class="banner-box banner-box2 <h4>Coming This Week</h4>
             <h2>Ragnar Sale</h2>
             <span>Klasik terbaik sedang dijual di SCC</span>
             <a href="shop.php">
