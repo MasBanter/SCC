@@ -1,7 +1,7 @@
 <?php
 include("include/connect.php");
 
-if (isset($_POST['products'])) {
+if (isset($_POST['ins'])) {
 	$pname = $_POST['name'];
 	$category = $_POST['category'];
 	$description = $_POST['description'];
