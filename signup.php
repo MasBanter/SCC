@@ -7,43 +7,21 @@ if (isset($_POST['submit'])) {
     $lastname = $_POST['lastName'];
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $confirmpassowrd = $_POST['confirmPassword'];
+    $confirmpassword = $_POST['confirmPassword'];
     $cnic = $_POST['cnic'];
     $dob = $_POST['dob'];
     $contact = $_POST['phone'];
     $gen = $_POST['gender'];
     $email = $_POST['email'];
 
-    $query = "select * from accounts where username = '$username' or cnic='$cnic' or phone='$contact' or email='$email'";
+    // Validasi input
+    if (empty($firstname) || empty($lastname) || empty($username) || empty($password) || empty($confirmpassword) || empty($cnic) || empty($dob) || empty($contact) || empty($gen) || empty($email)) {
+        echo "All fields are required.";
+        exit();
+    }
 
-    $result = mysqli_query($con, $query);
-    $row = mysqli_fetch_assoc($result);
-    if (!empty($row['aid'])) {
-        echo "<script> alert('Credentials already exists'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
-        exit();
-    }
-    if ($password != $confirmpassowrd) {
-        echo "<script> alert('Passwords do not match'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
-        exit();
-    }
-    if ($password < 8) {
-        echo "<script> alert('Passwords too short'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
-        exit();
-    }
-    if (strtotime($dob) > time()) {
-        echo "<script> alert('invalid date'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
-        exit();
-    }
-    if ($gen == "S") {
-        echo "<script> alert('select gender'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
-        exit();
-    }
-    if (preg_match('/\D/', $cnic) || strlen($cnic) != 13) {
-        echo "<script> alert('invalid cnic'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
-        exit();
-    }
-    if (preg_match('/\D/', $contact) || strlen($contact) != 11) {
-        echo "<script> alert('invalid number'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+    if ($password !== $confirmpassword) {
+        echo "Passwords do not match.";
         exit();
     }
 
@@ -51,8 +29,9 @@ if (isset($_POST['submit'])) {
     $result = mysqli_query($con, $query);
     if (!$result) {
         echo "Error: " . mysqli_error($con);
+    } else {
+        echo "Account created successfully.";
     }
-
 }
 ?>
 
