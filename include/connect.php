@@ -7,6 +7,4 @@ if (!$con) {
     die(mysqli_error($con));
 }
 
-// Jika koneksi berhasil
-echo "Koneksi berhasil!";
 ?>
