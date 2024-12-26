@@ -63,4 +63,4 @@ jobs:
           app-name: 'SCC'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E42925170D3947EAA4F4A30C67A99906 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B6530EE6B1CA4F84B9B36FC30F65870A }}
