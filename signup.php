@@ -46,14 +46,10 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
-    $query = "insert into `accounts` (afname, alname, phone, email,cnic, dob, username, gender,password) values ('$firstname', '$lastname', '$contact','$email', '$cnic', '$dob', '$username', '$gen','$password')";
-
+    $query = "INSERT INTO `accounts` (afname, alname, phone, email, cnic, dob, username, gender, password) VALUES ('$firstname', '$lastname', '$contact', '$email', '$cnic', '$dob', '$username', '$gen', '$password')";
     $result = mysqli_query($con, $query);
-
-
-
-    if ($result) {
-        echo "<script> alert('Successfully entered account'); setTimeout(function(){ window.location.href = 'login.php'; }, 100); </script>"; // exit();
+    if (!$result) {
+        echo "Error: " . mysqli_error($con);
     }
 
 }
