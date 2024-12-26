@@ -100,25 +100,23 @@ if (isset($_POST['submit'])) {
     </section>
 
 
-    <form method="post" id="form">
+    <form method="post" action="signup.php" id="form">
         <h3 style="color: darkred; margin: auto"></h3>
         <input class="input1" id="fn" name="firstName" type="text" placeholder="First Name *" required="required">
         <input class="input1" id="ln" name="lastName" type="text" placeholder="Last Name *" required="required">
         <input class="input1" id="user" name="username" type="text" placeholder="Username *" required="required">
         <input class="input1" id="email" name="email" type="text" placeholder="Email *" required="required">
         <input class="input1" id="pass" name="password" type="password" placeholder="Password *" required="required">
-        <input class="input1" id="cpass" name="confirmPassword" type="password" placeholder="Confirm Password *"
-            required="required">
-        <input class="input1" id="cnic" name="cnic" type="number" placeholder="CNIC *" required="required">
+        <input class="input1" id="cpass" name="confirmPassword" type="password" placeholder="Confirm Password *" required="required">
+        <input class="input1" id="cnic" name="cnic" type="text" placeholder="CNIC *" required="required">
         <input class="input1" id="dob" name="dob" type="date" placeholder="Date Of Birth " required="required">
-        <input class="input1" id="contact" name="phone" type="number" placeholder="Contact *" required="required">
+        <input class="input1" id="contact" name="phone" type="text" placeholder="Contact *" required="required">
         <select class="select1" id="gen" name="gender" required="required">
             <option value="S">Select Gender</option>
             <option value="M">Male</option>
             <option value="F">Female</option>
         </select>
         <button name="submit" type="submit" class="btn">Submit</button>
-
     </form>
 
     <div class="sign">
