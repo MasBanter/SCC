@@ -120,7 +120,7 @@ if (isset($_POST['submit'])) {
     </form>
 
     <div class="sign">
-        <a href="login.php" class="signn">Already have an account?</a>
+        <a href="login.php" class="sign">Already have an account?</a>
     </div>
 
 
