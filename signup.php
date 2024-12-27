@@ -38,16 +38,17 @@ if (isset($_POST['submit'])) {
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($con, $query);
     mysqli_stmt_bind_param($stmt, "isssssssss", $aid = 1, $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
-    
 
     if (mysqli_stmt_execute($stmt)) {
         echo "Account created successfully!";
+        header("Location: login.php");  // Redirect ke halaman login
+        exit();
     } else {
         echo "Error: Account not created. " . mysqli_stmt_error($stmt);
     }
-        
+
     mysqli_stmt_close($stmt);
-    }
+}
 ?>
 
 <!DOCTYPE html>
