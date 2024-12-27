@@ -1,5 +1,4 @@
 <?php
-session_start();
 include("include/connect.php");
 
 if (isset($_POST['submit'])) {
@@ -7,60 +6,56 @@ if (isset($_POST['submit'])) {
     $lastname = $_POST['lastName'];
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $confirmpassword = $_POST['confirmPassword'];
+    $confirmpassowrd = $_POST['confirmPassword'];
     $cnic = $_POST['cnic'];
     $dob = $_POST['dob'];
     $contact = $_POST['phone'];
     $gen = $_POST['gender'];
     $email = $_POST['email'];
 
-    // Validation
-    if (empty($firstname) || empty($lastname) || empty($username) || empty($password) || empty($confirmpassword) || empty($cnic) || empty($dob) || empty($contact) || $gen === "" || empty($email)) {
-        echo "All fields are required.";
+    $query = "select * from accounts where username = '$username' or cnic='$cnic' or phone='$contact' or email='$email'";
+
+    $result = mysqli_query($con, $query);
+    $row = mysqli_fetch_assoc($result);
+    if (!empty($row['aid'])) {
+        echo "<script> alert('Credentials already exists'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+        exit();
+    }
+    if ($password != $confirmpassowrd) {
+        echo "<script> alert('Passwords do not match'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+        exit();
+    }
+    if ($password < 8) {
+        echo "<script> alert('Passwords too short'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+        exit();
+    }
+    if (strtotime($dob) > time()) {
+        echo "<script> alert('invalid date'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+        exit();
+    }
+    if ($gen == "S") {
+        echo "<script> alert('select gender'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+        exit();
+    }
+    if (preg_match('/\D/', $cnic) || strlen($cnic) != 13) {
+        echo "<script> alert('invalid cnic'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
+        exit();
+    }
+    if (preg_match('/\D/', $contact) || strlen($contact) != 11) {
+        echo "<script> alert('invalid number'); setTimeout(function(){ window.location.href = 'signup.php'; }, 100); </script>";
         exit();
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "Invalid email format.";
-        exit();
+    $query = "insert into `accounts` (afname, alname, phone, email,cnic, dob, username, gender,password) values ('$firstname', '$lastname', '$contact','$email', '$cnic', '$dob', '$username', '$gen','$password')";
+
+    $result = mysqli_query($con, $query);
+
+
+
+    if ($result) {
+        echo "<script> alert('Successfully entered account'); setTimeout(function(){ window.location.href = 'login.php'; }, 100); </script>"; // exit();
     }
 
-    if ($password !== $confirmpassword) {
-        echo "Passwords do not match.";
-        exit();
-    }
-
-    if (!preg_match('/^[0-9]{13}$/', $cnic)) {
-        echo "Invalid CNIC format. Must be 13 digits.";
-        exit();
-    }
-
-    if (!preg_match('/^[0-9]+$/', $contact)) {
-        echo "Invalid contact number. Only digits are allowed.";
-        exit();
-    }
-
-    // Hash the password
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // Database query with prepared statements
-    $query = "INSERT INTO accounts (afname, alname, phone, email, cnic, dob, username, gender, password) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = mysqli_prepare($con, $query);
-
-    if (!$stmt) {
-        die("SQL Error: " . mysqli_error($con));
-    } else {
-        mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashedPassword);
-        if (mysqli_stmt_execute($stmt)) {
-            // Redirect to login page after successful registration
-            header("Location: login.php");
-            exit();
-        } else {
-            echo "Error executing query: " . mysqli_stmt_error($stmt);
-        }
-    }
-    mysqli_stmt_close($stmt);
 }
 ?>
 
