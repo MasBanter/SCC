@@ -5,26 +5,30 @@ if (isset($_POST['sub'])) {
     include("include/connect.php");
 
     $aid = $_SESSION['aid'];
-    $add = $_POST['houseadd'];
-    $city = $_POST['city'];
-    $country = $_POST['country'];
-    $acc = $_POST['acc'];
+    $add = mysqli_real_escape_string($con, $_POST['houseadd']);
+    $city = mysqli_real_escape_string($con, $_POST['city']);
+    $country = mysqli_real_escape_string($con, $_POST['country']);
+    $acc = mysqli_real_escape_string($con, $_POST['acc']);
     $query = "";
 
     // Validasi nomor akun
     if (empty($acc)) {
-        $query = "insert into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', NULL, 0)";
+        $query = "INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) 
+                  VALUES (CURDATE(), NULL, '$aid', '$add', '$city', '$country', NULL, 0)";
     } else {
         if (preg_match('/\D/', $acc) || strlen($acc) != 16) {
-            echo "<script> alert('invalid account number'); setTimeout(function(){ window.location.href = 'checkout.php'; }, 100); </script>";
+            echo "<script> 
+                    alert('Invalid account number'); 
+                    setTimeout(function(){ window.location.href = 'checkout.php'; }, 100); 
+                  </script>";
             exit();
         }
 
-        $query = "insert into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$acc', 0)";
+        $query = "INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) 
+                  VALUES (CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$acc', 0)";
     }
 
-    $result = mysqli_query($con, $query);
-    if (!$result) {
+    if (!mysqli_query($con, $query)) {
         echo "Error executing query: " . mysqli_error($con);
         exit();
     }
@@ -38,44 +42,35 @@ if (isset($_POST['sub'])) {
         exit();
     }
 
-    global $tott;
+    $tott = 0;
     while ($row = mysqli_fetch_assoc($result)) {
         $pid = $row['pid'];
-        $pname = $row['pname'];
-        $desc = $row['description'];
-        $qty = $row['qtyavail'];
-        $price = $row['price'];
-        $cat = $row['category'];
-        $img = $row['img'];
-        $brand = $row['brand'];
         $cqty = $row['cqty'];
-        $tott = $price * $cqty;
+        $price = $row['price'];
 
-        $query = "insert into `order-details` (oid, pid, qty) values ($oid, $pid, $cqty)";
-        $result2 = mysqli_query($con, $query);
-        if (!$result2) {
+        $query = "INSERT INTO `order-details` (oid, pid, qty) VALUES ($oid, $pid, $cqty)";
+        if (!mysqli_query($con, $query)) {
             echo "Error executing query: " . mysqli_error($con);
             exit();
         }
 
-        $query = "update products set qtyavail = qtyavail - $cqty where pid = $pid";
-        $result2 = mysqli_query($con, $query);
-        if (!$result2) {
+        $query = "UPDATE products SET qtyavail = qtyavail - $cqty WHERE pid = $pid";
+        if (!mysqli_query($con, $query)) {
             echo "Error executing query: " . mysqli_error($con);
             exit();
         }
+
+        $tott += $price * $cqty;
     }
 
-    $query = "delete from cart where aid = $aid";
-    $result2 = mysqli_query($con, $query);
-    if (!$result2) {
+    $query = "DELETE FROM cart WHERE aid = $aid";
+    if (!mysqli_query($con, $query)) {
         echo "Error executing query: " . mysqli_error($con);
         exit();
     }
 
-    $query = "update orders set total = $tott where oid = $oid";
-    $result2 = mysqli_query($con, $query);
-    if (!$result2) {
+    $query = "UPDATE orders SET total = $tott WHERE oid = $oid";
+    if (!mysqli_query($con, $query)) {
         echo "Error executing query: " . mysqli_error($con);
         exit();
     }
@@ -85,6 +80,7 @@ if (isset($_POST['sub'])) {
     exit();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
