@@ -38,11 +38,14 @@ if (isset($_POST['submit'])) {
     $stmt = mysqli_prepare($con, $query);
     mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
 
-    if (!$stmt) {
-    die("SQL Error: " . mysqli_error($con));
+    if ($stmt) {
+    // Redirect ke halaman login jika pendaftaran berhasil
+        header("Location: login.php");
+        exit();
     } else {
-        echo "Error executing query: " . mysqli_stmt_error($stmt);
-    }
+        die("Error executing query: " . mysqli_stmt_error($stmt));
+}
+
     mysqli_stmt_close($stmt);
 }
 ?>
