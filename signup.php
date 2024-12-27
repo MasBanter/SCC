@@ -34,16 +34,18 @@ if (isset($_POST['submit'])) {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // Prepared statement untuk mencegah SQL injection
-    $query = "INSERT INTO `accounts` (afname, alname, phone, email, cnic, dob, username, gender, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO `accounts` (aid, afname, alname, phone, email, cnic, dob, username, gender, password) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($con, $query);
-    mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
+    mysqli_stmt_bind_param($stmt, "isssssssss", $aid = 1, $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
+    
 
-    if (mysqli_stmt_affected_rows($stmt) > 0) {
+    if (mysqli_stmt_execute($stmt)) {
         echo "Account created successfully!";
     } else {
-        echo "Error: Account not created. " . mysqli_error($con);
+        echo "Error: Account not created. " . mysqli_stmt_error($stmt);
     }
-    
+        
     mysqli_stmt_close($stmt);
     }
 ?>
