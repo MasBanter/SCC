@@ -14,8 +14,8 @@ if (isset($_POST['submit'])) {
     $gen = $_POST['gender'];
     $email = $_POST['email'];
 
-    // Validasi input
-    if (empty($firstname) || empty($lastname) || empty($username) || empty($password) || empty($confirmpassword) || empty($cnic) || empty($dob) || empty($contact) || $gen === "S" || empty($email)) {
+    // Validation
+    if (empty($firstname) || empty($lastname) || empty($username) || empty($password) || empty($confirmpassword) || empty($cnic) || empty($dob) || empty($contact) || $gen === "" || empty($email)) {
         echo "All fields are required.";
         exit();
     }
@@ -30,18 +30,32 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
-    // Prepared statement untuk mencegah SQL injection
+    if (!preg_match('/^[0-9]{13}$/', $cnic)) {
+        echo "Invalid CNIC format. Must be 13 digits.";
+        exit();
+    }
+
+    if (!preg_match('/^[0-9]+$/', $contact)) {
+        echo "Invalid contact number. Only digits are allowed.";
+        exit();
+    }
+
+    // Hash the password
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    // Database query with prepared statements
     $query = "INSERT INTO accounts (afname, alname, phone, email, cnic, dob, username, gender, password) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($con, $query);
 
     if (!$stmt) {
         die("SQL Error: " . mysqli_error($con));
     } else {
-        mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $password);
+        mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashedPassword);
         if (mysqli_stmt_execute($stmt)) {
-            // Redirect ke halaman login setelah akun berhasil dibuat
+            // Redirect to login page after successful registration
             header("Location: login.php");
+            exit();
         } else {
             echo "Error executing query: " . mysqli_stmt_error($stmt);
         }
@@ -54,17 +68,17 @@ if (isset($_POST['submit'])) {
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ByteBazaar</title>
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <section id="header">
-        <a href="#"><img src="img/logo.png" class="logo" alt="" /></a>
+        <a href="#"><img src="img/logo.png" class="logo" alt=""></a>
         <div>
             <ul id="navbar">
                 <li><a href="index.php">Home</a></li>
@@ -94,11 +108,11 @@ if (isset($_POST['submit'])) {
         <input class="input1" id="email" name="email" type="email" placeholder="Email *" required>
         <input class="input1" id="pass" name="password" type="password" placeholder="Password *" required>
         <input class="input1" id="cpass" name="confirmPassword" type="password" placeholder="Confirm Password *" required>
-        <input class="input1" id="cnic" name="cnic" type="text" placeholder="CNIC *" required>
+        <input class="input1" id="cnic" name="cnic" type="text" placeholder="CNIC *" pattern="[0-9]{13}" required>
         <input class="input1" id="dob" name="dob" type="date" required>
-        <input class="input1" id="contact" name="phone" type="text" placeholder="Contact *" required>
+        <input class="input1" id="contact" name="phone" type="text" placeholder="Contact *" pattern="[0-9]+" required>
         <select class="select1" id="gen" name="gender" required>
-            <option value="S">Select Gender</option>
+            <option value="" disabled selected>Select Gender</option>
             <option value="M">Male</option>
             <option value="F">Female</option>
         </select>
@@ -111,7 +125,7 @@ if (isset($_POST['submit'])) {
 
     <footer class="section-p1">
         <div class="col">
-            <img class="logo" src="img/logo.png" />
+            <img class="logo" src="img/logo.png">
             <h4>Contact</h4>
             <p><strong>Address: </strong> Jln. Palagan, Sleman, Yogyakarta</p>
             <p><strong>Phone: </strong> +62 812 3456 7891</p>
@@ -124,7 +138,7 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="col install">
             <p>Pembayaran Aman</p>
-            <img src="img/pay/pay.png" />
+            <img src="img/pay/pay.png">
         </div>
         <div class="copyright">
             <p>2024. Kelompok 5 CC</p>
