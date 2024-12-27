@@ -38,10 +38,10 @@ if (isset($_POST['submit'])) {
     $stmt = mysqli_prepare($con, $query);
     mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
 
-    if (mysqli_stmt_execute($stmt)) {
-        echo "Account created successfully.";
+    if (!$stmt) {
+    die("SQL Error: " . mysqli_error($con));
     } else {
-        echo "Error: " . mysqli_error($con);
+        echo "Error executing query: " . mysqli_stmt_error($stmt);
     }
     mysqli_stmt_close($stmt);
 }
