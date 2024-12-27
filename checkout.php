@@ -12,14 +12,14 @@ if (isset($_POST['sub'])) {
     $query = "";
 
     if (empty($acc)) {
-        $query = "insert into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', NULL, 0)";
+        $query = "INSERT into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$account', 0)";
     } else {
         if (preg_match('/\D/', $acc) || strlen($acc) != 16) {
             echo "<script> alert('invalid account number'); setTimeout(function(){ window.location.href = 'checkout.php'; }, 100); </script>";
             exit();
         }
 
-        $query = "insert into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$acc', 0)";
+        $query = "INSERT into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$account', 0)";
     }
     $result = mysqli_query($con, $query);
 
