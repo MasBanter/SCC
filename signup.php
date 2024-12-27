@@ -39,10 +39,11 @@ if (isset($_POST['submit'])) {
         die("SQL Error: " . mysqli_error($con));
     } else {
         mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $password);
-        if (!mysqli_stmt_execute($stmt)) {
-            echo "Error executing query: " . mysqli_stmt_error($stmt);
+        if (mysqli_stmt_execute($stmt)) {
+            // Redirect ke halaman login setelah akun berhasil dibuat
+            header("Location: login.php");
         } else {
-            echo "Account created successfully!";
+            echo "Error executing query: " . mysqli_stmt_error($stmt);
         }
     }
     mysqli_stmt_close($stmt);
