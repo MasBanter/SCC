@@ -8,61 +8,62 @@ if (isset($_POST['sub'])) {
     $add = $_POST['houseadd'];
     $city = $_POST['city'];
     $country = $_POST['country'];
-    $acc = $_POST['acc'];
-    $query = "";
+    $acc = $_POST['acc'] ?? null;
 
-    if (empty($acc)) {
-        $query = "INSERT into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$account', 0)";
-    } else {
-        if (preg_match('/\D/', $acc) || strlen($acc) != 16) {
-            echo "<script> alert('invalid account number'); setTimeout(function(){ window.location.href = 'checkout.php'; }, 100); </script>";
-            exit();
-        }
-
-        $query = "INSERT into `orders` (dateod, datedel, aid, address, city, country, account, total) values(CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$account', 0)";
+    // Validate account number if provided
+    if (!empty($acc) && (!ctype_digit($acc) || strlen($acc) != 16)) {
+        echo "<script>alert('Invalid account number'); setTimeout(function(){ window.location.href = 'checkout.php'; }, 100);</script>";
+        exit();
     }
-    $result = mysqli_query($con, $query);
 
-    $oid = mysqli_insert_id($con);
+    // Prepare and execute the order query
+    $stmt = $con->prepare("INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) VALUES (CURDATE(), NULL, ?, ?, ?, ?, ?, 0)");
+    $stmt->bind_param("issss", $aid, $add, $city, $country, $acc);
+    $stmt->execute();
 
-    $query = "SELECT * FROM cart JOIN products ON cart.pid = products.pid WHERE aid = $aid";
+    $oid = $stmt->insert_id;
 
-    $result = mysqli_query($con, $query);
-    global $tott;
-    while ($row = mysqli_fetch_assoc($result)) {
+    // Fetch cart items for the user
+    $query = "SELECT * FROM cart JOIN products ON cart.pid = products.pid WHERE aid = ?";
+    $stmt = $con->prepare($query);
+    $stmt->bind_param("i", $aid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $total = 0;
+    while ($row = $result->fetch_assoc()) {
         $pid = $row['pid'];
-        $pname = $row['pname'];
-        $desc = $row['description'];
-        $qty = $row['qtyavail'];
-        $price = $row['price'];
-        $cat = $row['category'];
-        $img = $row['img'];
-        $brand = $row['brand'];
         $cqty = $row['cqty'];
-        $tott = $price * $cqty;
+        $price = $row['price'];
+        $total += $price * $cqty;
 
-        $query = "insert into `order-details` (oid, pid, qty) values ($oid, $pid, $cqty)";
+        // Insert into order-details
+        $stmt = $con->prepare("INSERT INTO `order-details` (oid, pid, qty) VALUES (?, ?, ?)");
+        $stmt->bind_param("iii", $oid, $pid, $cqty);
+        $stmt->execute();
 
-        mysqli_query($con, $query);
-
-        $query = "update products set qtyavail = qtyavail - $cqty where pid = $pid";
-
-        mysqli_query($con, $query);
+        // Update product stock
+        $stmt = $con->prepare("UPDATE products SET qtyavail = qtyavail - ? WHERE pid = ?");
+        $stmt->bind_param("ii", $cqty, $pid);
+        $stmt->execute();
     }
 
-    $query = "delete from cart where aid = $aid";
+    // Clear the cart
+    $stmt = $con->prepare("DELETE FROM cart WHERE aid = ?");
+    $stmt->bind_param("i", $aid);
+    $stmt->execute();
 
-    mysqli_query($con, $query);
+    // Update total in orders
+    $stmt = $con->prepare("UPDATE orders SET total = ? WHERE oid = ?");
+    $stmt->bind_param("di", $total, $oid);
+    $stmt->execute();
 
-    $query = "update orders set total = $tott where oid = $oid";
-
-    mysqli_query($con, $query);
-
-
+    // Redirect to profile
     header("Location: profile.php");
     exit();
 }
 ?>
+
 
 
 <!DOCTYPE html>
