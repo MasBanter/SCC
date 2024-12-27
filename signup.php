@@ -41,8 +41,9 @@ if (isset($_POST['submit'])) {
     if (mysqli_stmt_affected_rows($stmt) > 0) {
         echo "Account created successfully!";
     } else {
-        echo "Error: Account not created.";
+        echo "Error: Account not created. " . mysqli_error($con);
     }
+    
     mysqli_stmt_close($stmt);
     }
 ?>
