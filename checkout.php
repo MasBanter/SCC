@@ -4,9 +4,9 @@ session_start();
 if (isset($_POST['sub'])) {
     include("include/connect.php");
 
-    iif (!isset($_SESSION['aid']) || !is_int($_SESSION['aid'])) {
-    header("Location: login.php");
-    exit();
+    if (!isset($_SESSION['aid']) || !is_int($_SESSION['aid'])) {
+        header("Location: login.php");
+        exit();
     }
     
     $aid = $_SESSION['aid'];
