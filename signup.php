@@ -1,8 +1,7 @@
 <?php
-session_start()
+session_start();
 include("include/connect.php");
 
-/* 
 if (isset($_POST['submit'])) {
     $firstname = $_POST['firstName'];
     $lastname = $_POST['lastName'];
@@ -16,8 +15,13 @@ if (isset($_POST['submit'])) {
     $email = $_POST['email'];
 
     // Validasi input
-    if (empty($firstname) || empty($lastname) || empty($username) || empty($password) || empty($confirmpassword) || empty($cnic) || empty($dob) || empty($contact) || empty($gen) || empty($email)) {
+    if (empty($firstname) || empty($lastname) || empty($username) || empty($password) || empty($confirmpassword) || empty($cnic) || empty($dob) || empty($contact) || $gen === "S" || empty($email)) {
         echo "All fields are required.";
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "Invalid email format.";
         exit();
     }
 
@@ -26,14 +30,21 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
-    $query = "INSERT INTO `accounts` (afname, alname, phone, email, cnic, dob, username, gender, password) VALUES ('$firstname', '$lastname', '$contact', '$email', '$cnic', '$dob', '$username', '$gen', '$password')";
-    $result = mysqli_query($con, $query);
-    if (!$result) {
-        echo "Error: " . mysqli_error($con);
-    } else {
+    // Hashing password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // Prepared statement untuk mencegah SQL injection
+    $query = "INSERT INTO `accounts` (afname, alname, phone, email, cnic, dob, username, gender, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($con, $query);
+    mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
+
+    if (mysqli_stmt_execute($stmt)) {
         echo "Account created successfully.";
+    } else {
+        echo "Error: " . mysqli_error($con);
     }
-} */
+    mysqli_stmt_close($stmt);
+}
 ?>
 
 <!DOCTYPE html>
@@ -45,23 +56,19 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ByteBazaar</title>
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
-
     <link rel="stylesheet" href="style.css" />
-
 </head>
 
 <body>
     <section id="header">
         <a href="#"><img src="img/logo.png" class="logo" alt="" /></a>
-
         <div>
             <ul id="navbar">
                 <li><a href="index.php">Home</a></li>
                 <li><a href="shop.php">Shop</a></li>
                 <li><a href="about.php">About</a></li>
                 <li><a href="contact.php">Contact</a></li>
-                <li><a href="login.php">login</a></li>
+                <li><a href="login.php">Login</a></li>
                 <li><a class="active" href="signup.php">SignUp</a></li>
                 <li><a href="admin.php">Admin</a></li>
                 <li id="lg-bag">
@@ -76,19 +83,18 @@ if (isset($_POST['submit'])) {
         </div>
     </section>
 
-
     <form method="post" action="signup.php" id="form">
         <h3 style="color: darkred; margin: auto"></h3>
-        <input class="input1" id="fn" name="firstName" type="text" placeholder="First Name *" required="required">
-        <input class="input1" id="ln" name="lastName" type="text" placeholder="Last Name *" required="required">
-        <input class="input1" id="user" name="username" type="text" placeholder="Username *" required="required">
-        <input class="input1" id="email" name="email" type="text" placeholder="Email *" required="required">
-        <input class="input1" id="pass" name="password" type="password" placeholder="Password *" required="required">
-        <input class="input1" id="cpass" name="confirmPassword" type="password" placeholder="Confirm Password *" required="required">
-        <input class="input1" id="cnic" name="cnic" type="text" placeholder="CNIC *" required="required">
-        <input class="input1" id="dob" name="dob" type="date" placeholder="Date Of Birth " required="required">
-        <input class="input1" id="contact" name="phone" type="text" placeholder="Contact *" required="required">
-        <select class="select1" id="gen" name="gender" required="required">
+        <input class="input1" id="fn" name="firstName" type="text" placeholder="First Name *" required>
+        <input class="input1" id="ln" name="lastName" type="text" placeholder="Last Name *" required>
+        <input class="input1" id="user" name="username" type="text" placeholder="Username *" required>
+        <input class="input1" id="email" name="email" type="email" placeholder="Email *" required>
+        <input class="input1" id="pass" name="password" type="password" placeholder="Password *" required>
+        <input class="input1" id="cpass" name="confirmPassword" type="password" placeholder="Confirm Password *" required>
+        <input class="input1" id="cnic" name="cnic" type="text" placeholder="CNIC *" required>
+        <input class="input1" id="dob" name="dob" type="date" required>
+        <input class="input1" id="contact" name="phone" type="text" placeholder="Contact *" required>
+        <select class="select1" id="gen" name="gender" required>
             <option value="S">Select Gender</option>
             <option value="M">Male</option>
             <option value="F">Female</option>
@@ -100,23 +106,14 @@ if (isset($_POST['submit'])) {
         <a href="login.php" class="sign">Already have an account?</a>
     </div>
 
-
     <footer class="section-p1">
         <div class="col">
             <img class="logo" src="img/logo.png" />
             <h4>Contact</h4>
-            <p>
-                <strong>Address: </strong> Jln. Palagan, Sleman, Yogyakarta
-
-            </p>
-            <p>
-                <strong>Phone: </strong> +62 812 3456 7891
-            </p>
-            <p>
-                <strong>Hours: </strong> Senin hingga Sabtu: pukul 09.00 hingga 17.00
-            </p>
+            <p><strong>Address: </strong> Jln. Palagan, Sleman, Yogyakarta</p>
+            <p><strong>Phone: </strong> +62 812 3456 7891</p>
+            <p><strong>Hours: </strong> Senin hingga Sabtu: pukul 09.00 hingga 17.00</p>
         </div>
-
         <div class="col">
             <h4>Akun Saya</h4>
             <a href="cart.php">Lihat Keranjang</a>
@@ -131,7 +128,16 @@ if (isset($_POST['submit'])) {
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById("form").addEventListener("submit", function (event) {
+            const password = document.getElementById("pass").value;
+            const confirmPassword = document.getElementById("cpass").value;
+            if (password !== confirmPassword) {
+                event.preventDefault();
+                alert("Passwords do not match!");
+            }
+        });
+    </script>
 </body>
 
 </html>
