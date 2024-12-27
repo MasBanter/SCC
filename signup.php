@@ -2,6 +2,7 @@
 session_start()
 include("include/connect.php");
 
+/* 
 if (isset($_POST['submit'])) {
     $firstname = $_POST['firstName'];
     $lastname = $_POST['lastName'];
@@ -32,7 +33,7 @@ if (isset($_POST['submit'])) {
     } else {
         echo "Account created successfully.";
     }
-}
+} */
 ?>
 
 <!DOCTYPE html>
