@@ -30,9 +30,6 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
-    // Hashing password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
     // Prepared statement untuk mencegah SQL injection
     $query = "INSERT INTO accounts (afname, alname, phone, email, cnic, dob, username, gender, password) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -41,7 +38,7 @@ if (isset($_POST['submit'])) {
     if (!$stmt) {
         die("SQL Error: " . mysqli_error($con));
     } else {
-        mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $hashed_password);
+        mysqli_stmt_bind_param($stmt, "sssssssss", $firstname, $lastname, $contact, $email, $cnic, $dob, $username, $gen, $password);
         if (!mysqli_stmt_execute($stmt)) {
             echo "Error executing query: " . mysqli_stmt_error($stmt);
         } else {
@@ -146,12 +143,3 @@ if (isset($_POST['submit'])) {
 </body>
 
 </html>
-
-<script>
-window.addEventListener("unload", function() {
-  // Call a PHP script to log out the user
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", "logout.php", false);
-  xhr.send();
-});
-</script>
