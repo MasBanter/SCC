@@ -58,8 +58,8 @@ if (isset($_POST['sub'])) {
         $stmt->bind_param("di", $total, $oid);
         $stmt->execute();
 
-    // Redirect to profile
-    header("Location: profile.php");
+// Redirect to profile
+header("Location: profile.php");
     exit();
 }
 ?>
