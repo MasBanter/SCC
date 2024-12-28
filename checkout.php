@@ -48,15 +48,15 @@ if (isset($_POST['sub'])) {
         $stmt->execute();
     }
 
-    // Clear the cart
-    $stmt = $con->prepare("DELETE FROM cart WHERE aid = ?");
-    $stmt->bind_param("i", $aid);
-    $stmt->execute();
-
-    // Update total in orders
-    $stmt = $con->prepare("UPDATE orders SET total = ? WHERE oid = ?");
-    $stmt->bind_param("di", $total, $oid);
-    $stmt->execute();
+        // Clear the cart
+        $stmt = $con->prepare("DELETE FROM cart WHERE aid = ?");
+        $stmt->bind_param("i", $aid);
+        $stmt->execute();
+    
+        // Update total in orders
+        $stmt = $con->prepare("UPDATE orders SET total = ? WHERE oid = ?");
+        $stmt->bind_param("di", $total, $oid);
+        $stmt->execute();
 
     // Redirect to profile
     header("Location: profile.php");
