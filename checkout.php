@@ -233,28 +233,28 @@ if (isset($_POST['sub'])) {
             <img class="logo" src="img/logo.png" />
             <h4>Contact</h4>
             <p>
-                <strong>Address: </strong> Street 2, Johar Town Block A,Lahore
+                <strong>Address: </strong> Jln. Palagan, Sleman, Yogyakarta
 
             </p>
             <p>
-                <strong>Phone: </strong> +92324953752
+                <strong>Phone: </strong> +62 812 3456 7891
             </p>
             <p>
-                <strong>Hours: </strong> 9am-5pm
+                <strong>Hours: </strong> Senin hingga Sabtu: pukul 09.00 hingga 17.00
             </p>
         </div>
 
         <div class="col">
-            <h4>My Account</h4>
-            <a href="cart.php">View Cart</a>
-            <a href="wishlist.php">My Wishlist</a>
+            <h4>Akun Saya</h4>
+            <a href="cart.php">Lihat Keranjang</a>
+            <a href="wishlist.php">Daftar Keinginan Saya</a>
         </div>
         <div class="col install">
-            <p>Secured Payment Gateways</p>
+            <p>Pembayaran Aman</p>
             <img src="img/pay/pay.png" />
         </div>
         <div class="copyright">
-            <p>2021. byteBazaar. HTML CSS </p>
+            <p>2024. Kelompok 5 CC</p>
         </div>
     </footer>
 
