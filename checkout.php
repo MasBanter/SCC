@@ -82,23 +82,26 @@ if (isset($_POST['sub'])) {
         $price = $row['price'];
         $qtyAvail = $row['qtyavail'];
         $totalItem = $price * $cqty;
-
+    
         if ($qtyAvail < $cqty) {
             redirect_with_message('checkout.php', "Insufficient stock for product ID $pid.");
         }
-
+    
+        // Masukkan detail pesanan
         $query = "INSERT INTO `order-details` (oid, pid, qty) VALUES ('$oid', '$pid', '$cqty')";
         if (!mysqli_query($con, $query)) {
             die("Error inserting order details: " . mysqli_error($con));
         }
-
+    
+        // Update stok produk
         $query = "UPDATE products SET qtyavail = qtyavail - $cqty WHERE pid = $pid";
         if (!mysqli_query($con, $query)) {
             die("Error updating product stock: " . mysqli_error($con));
         }
-
+    
         $totalOrder += $totalItem;
     }
+
 
     $query = "DELETE FROM cart WHERE aid = $aid";
     if (!mysqli_query($con, $query)) {
