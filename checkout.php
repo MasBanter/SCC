@@ -57,8 +57,8 @@ if (isset($_POST['sub'])) {
     // Insert ke tabel orders
     $query = "INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) 
               VALUES (CURDATE(), NULL, $aid, '$add', '$city', '$country', '$acc', 0)";
-    if (!mysqli_query($con, $query)) {
-        die("Error inserting order: " . mysqli_error($con));
+        if (!mysqli_query($con, $query)) {
+            die("Error inserting order: " . mysqli_error($con));
     }
 
     $oid = mysqli_insert_id($con);
