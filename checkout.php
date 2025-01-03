@@ -16,13 +16,19 @@ function sanitizeInput($input, $con) {
 }
 
 if (isset($_POST['sub'])) {
+    // Pastikan file koneksi ada
+    if (!file_exists("include/connect.php")) {
+        die("Database configuration file not found.");
+    }
+
     include("include/connect.php");
 
+    // Ambil nilai input dengan sanitasi
     $aid = $_SESSION['aid'];
-    $add = sanitizeInput($_POST['houseadd'], $con);
-    $city = sanitizeInput($_POST['city'], $con);
-    $country = sanitizeInput($_POST['country'], $con);
-    $acc = sanitizeInput($_POST['acc'], $con);
+    $add = sanitizeInput(filter_input(INPUT_POST, 'houseadd', FILTER_SANITIZE_STRING), $con);
+    $city = sanitizeInput(filter_input(INPUT_POST, 'city', FILTER_SANITIZE_STRING), $con);
+    $country = sanitizeInput(filter_input(INPUT_POST, 'country', FILTER_SANITIZE_STRING), $con);
+    $acc = sanitizeInput(filter_input(INPUT_POST, 'acc', FILTER_SANITIZE_STRING), $con);
     $totalOrder = 0;
 
     // Validasi input alamat
@@ -31,7 +37,7 @@ if (isset($_POST['sub'])) {
     }
 
     // Validasi nomor akun jika diisi
-    if (!empty($acc) && (preg_match('/\D/', $acc) || strlen($acc) != 16)) {
+    if (!empty($acc) && (!ctype_digit($acc) || strlen($acc) != 16)) {
         echo "<script>alert('Invalid account number. It must be a 16-digit number.');</script>";
         echo "<script>window.location.href = 'checkout.php';</script>";
         exit();
