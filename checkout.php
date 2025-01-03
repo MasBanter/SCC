@@ -18,12 +18,12 @@ if (isset($_POST['sub'])) {
 
     include("include/connect.php");
 
-    // Ambil nilai input dengan sanitasi
+    // Sanitasi input
     $aid = $_SESSION['aid'];
-    $add = htmlspecialchars(trim($_POST['houseadd']), ENT_QUOTES, 'UTF-8');
-    $city = htmlspecialchars(trim($_POST['city']), ENT_QUOTES, 'UTF-8');
-    $country = htmlspecialchars(trim($_POST['country']), ENT_QUOTES, 'UTF-8');
-    $acc = htmlspecialchars(trim($_POST['acc']), ENT_QUOTES, 'UTF-8');
+    $add = mysqli_real_escape_string($con, trim($_POST['houseadd']));
+    $city = mysqli_real_escape_string($con, trim($_POST['city']));
+    $country = mysqli_real_escape_string($con, trim($_POST['country']));
+    $acc = isset($_POST['acc']) ? mysqli_real_escape_string($con, trim($_POST['acc'])) : null;
     $totalOrder = 0;
 
     // Validasi input alamat
@@ -41,9 +41,7 @@ if (isset($_POST['sub'])) {
     // Insert ke tabel orders
     $query = "INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) 
               VALUES (CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$acc', 0)";
-    $result = mysqli_query($con, $query);
-
-    if (!$result) {
+    if (!mysqli_query($con, $query)) {
         die("Error inserting order: " . mysqli_error($con));
     }
 
@@ -51,7 +49,10 @@ if (isset($_POST['sub'])) {
     $oid = mysqli_insert_id($con);
 
     // Ambil data dari cart
-    $query = "SELECT * FROM cart JOIN products ON cart.pid = products.pid WHERE aid = $aid";
+    $query = "SELECT cart.pid, cart.cqty, products.price, products.qtyavail 
+              FROM cart 
+              JOIN products ON cart.pid = products.pid 
+              WHERE cart.aid = $aid";
     $result = mysqli_query($con, $query);
 
     if (!$result) {
@@ -72,7 +73,7 @@ if (isset($_POST['sub'])) {
         }
 
         // Insert ke tabel order-details
-        $query = "INSERT INTO `order-details` (oid, pid, qty) VALUES ($oid, $pid, $cqty)";
+        $query = "INSERT INTO `order-details` (oid, pid, qty) VALUES ('$oid', '$pid', '$cqty')";
         if (!mysqli_query($con, $query)) {
             die("Error inserting order details: " . mysqli_error($con));
         }
@@ -104,6 +105,7 @@ if (isset($_POST['sub'])) {
     exit();
 }
 ?>
+
 
 
 <!DOCTYPE html>
