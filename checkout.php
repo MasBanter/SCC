@@ -1,61 +1,61 @@
 <?php
 session_start();
 
-// Aktifkan error reporting untuk debugging
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-// Periksa apakah sesi valid
-if (!isset($_SESSION['aid'])) {
-    die("Session expired. Please log in again.");
-}
-
-// Fungsi untuk menampilkan pesan dan redirect
-function redirect_with_message($url, $message) {
-    $_SESSION['message'] = $message;
-    header("Location: $url");
-    exit();
-}
-
-// Pesan status jika ada
-if (isset($_SESSION['message'])) {
-    echo "<script>alert('{$_SESSION['message']}');</script>";
-    unset($_SESSION['message']);
-}
-
-if (isset($_POST['sub'])) {
-    // Pastikan file koneksi ada
-    if (!file_exists("include/connect.php")) {
-        die("Database configuration file not found.");
+    // Aktifkan error reporting untuk debugging
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    
+    // Periksa apakah sesi valid
+    if (!isset($_SESSION['aid'])) {
+        die("Session expired. Please log in again.");
     }
-
-    include("include/connect.php");
-
-    // Sanitasi input
-    $aid = $_SESSION['aid'];
-    $add = mysqli_real_escape_string($con, trim($_POST['houseadd']));
-    $city = filter_var(trim($_POST['city']), FILTER_SANITIZE_STRING);
-    $country = filter_var(trim($_POST['country']), FILTER_SANITIZE_STRING);
-    $acc = isset($_POST['acc']) ? mysqli_real_escape_string($con, trim($_POST['acc'])) : null;
-    $totalOrder = 0;
-
+    
+    // Fungsi untuk menampilkan pesan dan redirect
+    function redirect_with_message($url, $message) {
+        $_SESSION['message'] = $message;
+        header("Location: $url");
+        exit();
+    }
+    
+    // Pesan status jika ada
+    if (isset($_SESSION['message'])) {
+        echo "<script>alert('{$_SESSION['message']}');</script>";
+        unset($_SESSION['message']);
+    }
+    
+    if (isset($_POST['sub'])) {
+        // Pastikan file koneksi ada
+        if (!file_exists("include/connect.php")) {
+            die("Database configuration file not found.");
+        }
+    
+        include("include/connect.php");
+    
+        // Sanitasi input
+    $add = htmlspecialchars(trim($_POST['houseadd']), ENT_QUOTES, 'UTF-8');
+    $city = htmlspecialchars(trim($_POST['city']), ENT_QUOTES, 'UTF-8');
+    $country = htmlspecialchars(trim($_POST['country']), ENT_QUOTES, 'UTF-8');
+    $acc = isset($_POST['acc']) ? htmlspecialchars(trim($_POST['acc']), ENT_QUOTES, 'UTF-8') : null;
+    
     // Validasi input alamat
     if (empty($add) || empty($city) || empty($country)) {
-        redirect_with_message('checkout.php', 'Address, City, and Country fields are required.');
+        die("Address, City, and Country fields are required.");
     }
-
+    
     // Validasi nomor akun jika diisi
     if (!empty($acc) && (!ctype_digit($acc) || strlen($acc) != 16)) {
-        redirect_with_message('checkout.php', 'Invalid account number. It must be a 16-digit number.');
+        echo "<script>alert('Invalid account number. It must be a 16-digit number.');</script>";
+        echo "<script>window.location.href = 'checkout.php';</script>";
+        exit();
     }
-
+    
     // Insert ke tabel orders
     $query = "INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) 
               VALUES (CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$acc', 0)";
     if (!mysqli_query($con, $query)) {
         die("Error inserting order: " . mysqli_error($con));
     }
-
+    
     // Ambil ID pesanan yang baru dibuat
     $oid = mysqli_insert_id($con);
 
