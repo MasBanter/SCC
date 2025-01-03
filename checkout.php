@@ -10,11 +10,6 @@ if (!isset($_SESSION['aid'])) {
     die("Session expired. Please log in again.");
 }
 
-// Fungsi untuk menghindari SQL Injection
-function sanitizeInput($input, $con) {
-    return mysqli_real_escape_string($con, trim($input));
-}
-
 if (isset($_POST['sub'])) {
     // Pastikan file koneksi ada
     if (!file_exists("include/connect.php")) {
@@ -25,10 +20,10 @@ if (isset($_POST['sub'])) {
 
     // Ambil nilai input dengan sanitasi
     $aid = $_SESSION['aid'];
-    $add = sanitizeInput(filter_input(INPUT_POST, 'houseadd', FILTER_SANITIZE_STRING), $con);
-    $city = sanitizeInput(filter_input(INPUT_POST, 'city', FILTER_SANITIZE_STRING), $con);
-    $country = sanitizeInput(filter_input(INPUT_POST, 'country', FILTER_SANITIZE_STRING), $con);
-    $acc = sanitizeInput(filter_input(INPUT_POST, 'acc', FILTER_SANITIZE_STRING), $con);
+    $add = htmlspecialchars(trim($_POST['houseadd']), ENT_QUOTES, 'UTF-8');
+    $city = htmlspecialchars(trim($_POST['city']), ENT_QUOTES, 'UTF-8');
+    $country = htmlspecialchars(trim($_POST['country']), ENT_QUOTES, 'UTF-8');
+    $acc = htmlspecialchars(trim($_POST['acc']), ENT_QUOTES, 'UTF-8');
     $totalOrder = 0;
 
     // Validasi input alamat
@@ -109,6 +104,7 @@ if (isset($_POST['sub'])) {
     exit();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
