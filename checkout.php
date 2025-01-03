@@ -1,62 +1,66 @@
 <?php
 session_start();
 
-    // Aktifkan error reporting untuk debugging
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
-    
-    // Periksa apakah sesi valid
-    if (!isset($_SESSION['aid'])) {
-        die("Session expired. Please log in again.");
+// Aktifkan error reporting untuk debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Periksa apakah sesi valid
+if (!isset($_SESSION['aid'])) {
+    die("Session expired. Please log in again.");
+}
+
+$aid = isset($_SESSION['aid']) ? intval($_SESSION['aid']) : null;
+if ($aid === null) {
+    die("Session expired or invalid. Please log in again.");
+}
+
+// Fungsi untuk menampilkan pesan dan redirect
+function redirect_with_message($url, $message) {
+    $_SESSION['message'] = $message;
+    header("Location: $url");
+    exit();
+}
+
+// Pesan status jika ada
+if (isset($_SESSION['message'])) {
+    echo "<script>alert('{$_SESSION['message']}');</script>";
+    unset($_SESSION['message']);
+}
+
+if (isset($_POST['sub'])) {
+    // Pastikan file koneksi ada
+    if (!file_exists("include/connect.php")) {
+        die("Database configuration file not found.");
     }
-    
-    // Fungsi untuk menampilkan pesan dan redirect
-    function redirect_with_message($url, $message) {
-        $_SESSION['message'] = $message;
-        header("Location: $url");
-        exit();
-    }
-    
-    // Pesan status jika ada
-    if (isset($_SESSION['message'])) {
-        echo "<script>alert('{$_SESSION['message']}');</script>";
-        unset($_SESSION['message']);
-    }
-    
-    if (isset($_POST['sub'])) {
-        // Pastikan file koneksi ada
-        if (!file_exists("include/connect.php")) {
-            die("Database configuration file not found.");
-        }
-    
-        include("include/connect.php");
-    
-        // Sanitasi input
+
+    include("include/connect.php");
+
+    // Sanitasi input
     $add = htmlspecialchars(trim($_POST['houseadd']), ENT_QUOTES, 'UTF-8');
     $city = htmlspecialchars(trim($_POST['city']), ENT_QUOTES, 'UTF-8');
     $country = htmlspecialchars(trim($_POST['country']), ENT_QUOTES, 'UTF-8');
     $acc = isset($_POST['acc']) ? htmlspecialchars(trim($_POST['acc']), ENT_QUOTES, 'UTF-8') : null;
-    
+
     // Validasi input alamat
     if (empty($add) || empty($city) || empty($country)) {
         die("Address, City, and Country fields are required.");
     }
-    
+
     // Validasi nomor akun jika diisi
     if (!empty($acc) && (!ctype_digit($acc) || strlen($acc) != 16)) {
         echo "<script>alert('Invalid account number. It must be a 16-digit number.');</script>";
         echo "<script>window.location.href = 'checkout.php';</script>";
         exit();
     }
-    
+
     // Insert ke tabel orders
     $query = "INSERT INTO `orders` (dateod, datedel, aid, address, city, country, account, total) 
-              VALUES (CURDATE(), NULL, '$aid', '$add', '$city', '$country', '$acc', 0)";
+              VALUES (CURDATE(), NULL, $aid, '$add', '$city', '$country', '$acc', 0)";
     if (!mysqli_query($con, $query)) {
         die("Error inserting order: " . mysqli_error($con));
     }
-    
-    // Ambil ID pesanan yang baru dibuat
+
     $oid = mysqli_insert_id($con);
 
     // Ambil data dari cart
@@ -70,7 +74,8 @@ session_start();
         die("Error fetching cart data: " . mysqli_error($con));
     }
 
-    // Proses setiap item di cart
+    $totalOrder = 0; // Inisialisasi total pesanan
+
     while ($row = mysqli_fetch_assoc($result)) {
         $pid = $row['pid'];
         $cqty = $row['cqty'];
@@ -78,43 +83,37 @@ session_start();
         $qtyAvail = $row['qtyavail'];
         $totalItem = $price * $cqty;
 
-        // Validasi stok
         if ($qtyAvail < $cqty) {
             redirect_with_message('checkout.php', "Insufficient stock for product ID $pid.");
         }
 
-        // Insert ke tabel order-details
         $query = "INSERT INTO `order-details` (oid, pid, qty) VALUES ('$oid', '$pid', '$cqty')";
         if (!mysqli_query($con, $query)) {
             die("Error inserting order details: " . mysqli_error($con));
         }
 
-        // Update stok produk
         $query = "UPDATE products SET qtyavail = qtyavail - $cqty WHERE pid = $pid";
         if (!mysqli_query($con, $query)) {
             die("Error updating product stock: " . mysqli_error($con));
         }
 
-        // Tambahkan ke total pesanan
         $totalOrder += $totalItem;
     }
 
-    // Hapus cart pengguna
     $query = "DELETE FROM cart WHERE aid = $aid";
     if (!mysqli_query($con, $query)) {
         die("Error clearing cart: " . mysqli_error($con));
     }
 
-    // Update total pada tabel orders
     $query = "UPDATE orders SET total = $totalOrder WHERE oid = $oid";
     if (!mysqli_query($con, $query)) {
         die("Error updating order total: " . mysqli_error($con));
     }
 
-    // Redirect ke halaman profile
     redirect_with_message('profile.php', 'Order placed successfully!');
 }
 ?>
+
 
 
 <!DOCTYPE html>
