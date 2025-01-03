@@ -10,6 +10,19 @@ if (!isset($_SESSION['aid'])) {
     die("Session expired. Please log in again.");
 }
 
+// Fungsi untuk menampilkan pesan dan redirect
+function redirect_with_message($url, $message) {
+    $_SESSION['message'] = $message;
+    header("Location: $url");
+    exit();
+}
+
+// Pesan status jika ada
+if (isset($_SESSION['message'])) {
+    echo "<script>alert('{$_SESSION['message']}');</script>";
+    unset($_SESSION['message']);
+}
+
 if (isset($_POST['sub'])) {
     // Pastikan file koneksi ada
     if (!file_exists("include/connect.php")) {
@@ -21,21 +34,19 @@ if (isset($_POST['sub'])) {
     // Sanitasi input
     $aid = $_SESSION['aid'];
     $add = mysqli_real_escape_string($con, trim($_POST['houseadd']));
-    $city = mysqli_real_escape_string($con, trim($_POST['city']));
-    $country = mysqli_real_escape_string($con, trim($_POST['country']));
+    $city = filter_var(trim($_POST['city']), FILTER_SANITIZE_STRING);
+    $country = filter_var(trim($_POST['country']), FILTER_SANITIZE_STRING);
     $acc = isset($_POST['acc']) ? mysqli_real_escape_string($con, trim($_POST['acc'])) : null;
     $totalOrder = 0;
 
     // Validasi input alamat
     if (empty($add) || empty($city) || empty($country)) {
-        die("Address, City, and Country fields are required.");
+        redirect_with_message('checkout.php', 'Address, City, and Country fields are required.');
     }
 
     // Validasi nomor akun jika diisi
     if (!empty($acc) && (!ctype_digit($acc) || strlen($acc) != 16)) {
-        echo "<script>alert('Invalid account number. It must be a 16-digit number.');</script>";
-        echo "<script>window.location.href = 'checkout.php';</script>";
-        exit();
+        redirect_with_message('checkout.php', 'Invalid account number. It must be a 16-digit number.');
     }
 
     // Insert ke tabel orders
@@ -69,7 +80,7 @@ if (isset($_POST['sub'])) {
 
         // Validasi stok
         if ($qtyAvail < $cqty) {
-            die("Insufficient stock for product ID $pid.");
+            redirect_with_message('checkout.php', "Insufficient stock for product ID $pid.");
         }
 
         // Insert ke tabel order-details
@@ -101,11 +112,9 @@ if (isset($_POST['sub'])) {
     }
 
     // Redirect ke halaman profile
-    header("Location: profile.php");
-    exit();
+    redirect_with_message('profile.php', 'Order placed successfully!');
 }
 ?>
-
 
 
 <!DOCTYPE html>
